@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+	<meta charset='UTF-8'>
+	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<link rel='shortcut icon' href='#'>
+	<script src="https://kit.fontawesome.com/96ceb994d7.js" crossorigin="anonymous"></script>
+	<script src='https://code.jquery.com/jquery-3.6.0.min.js'
+		integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=' crossorigin='anonymous'></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"
+		integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<title>Hubspot Bulk Property Import tool</title>
+	<style>
+		@import url('http://fonts.cdnfonts.com/css/avenir-next-lt-pro');
+
+		body {
+			margin: 0;
+		}
+
+		.topbar {
+			position: relative;
+			top: 0%;
+			right: 0%;
+			width: 100%;
+			height: 3.3rem;
+			background-color: #2e3f50;
+		}
+
+		.title {
+			font-family: 'Avenir Next LT Pro', sans-serif;
+			font-weight: 600;
+			line-height: normal;
+			-webkit-font-smoothing: antialiased;
+			font-size: 25px;
+			color: #33475b;
+			text-transform: none;
+		}
+
+		.content {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			margin: 0 1rem 0 1rem;
+			gap: .5rem;
+		}
+
+		.creationForm {
+			min-width: 900px;
+			display: flex;
+			justify-content: left;
+			width: auto;
+			border: 1px solid #d2d4d4;
+			background: #f5f8fa;
+			flex-wrap: wrap;
+			gap: 1rem;
+			padding: .5rem;
+		}
+
+		input,
+		select {
+			width: 10rem;
+		}
+
+		th {
+			font-family: 'Avenir Next LT Pro', sans-serif;
+			font-weight: 450;
+			font-size: .75rem;
+		}
+
+		.buttons {
+			display: flex;
+			justify-content: center;
+			margin: 1rem;
+			gap: 1rem;
+		}
+
+		.overlay {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			z-index: 99;
+			position: fixed;
+			height: 100%;
+			width: 100%;
+			background: rgba(0, 0, 0, 0.3);
+			backdrop-filter: blur(3px);
+		}
+
+		.overlay textarea {
+			width: 90%;
+			height: 50%;
+			resize: none;
+		}
+
+		.objectSelector {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 1rem;
+		}
+
+		.objectSelector input {
+			width: auto;
+		}
+
+		.objectSelector #privateKey {
+			width: 20rem;
+		}
+
+		.propertyRow {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: row;
+		}
+
+		.leftmenu {
+			gap: 5px;
+			height: auto;
+			width: 6rem;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+			flex-wrap: wrap;
+		}
+
+		.leftmenu Button {
+			width: 2rem;
+			height: 2rem;
+			border: white;
+			background: none;
+			transition: 440ms;
+			padding: 5px;
+		}
+
+		.leftmenu Button:hover {
+			background: #f5f8fa;
+			border: 1px solid #d2d4d4;
+		}
+
+		.leftmenu Span {
+			width: 5rem;
+			text-align: center;
+			font-family: 'Avenir Next LT Pro', sans-serif;
+			font-weight: 600;
+			line-height: normal;
+			-webkit-font-smoothing: antialiased;
+			font-size: 15px;
+			color: #33475b;
+			text-transform: none;
+		}
+
+		.AS_Text {
+			width: 60%;
+			height: auto;
+			background: rgb(255, 255, 255);
+			border-radius: 6px;
+		}
+
+		.AS_Text h1 {
+			text-align: center;
+			font-family: 'avenir-next-lt-pro', sans-serif;
+			text-transform: uppercase;
+			font-size: 15px;
+		}
+
+		.AS_Text p {
+			text-align: center;
+			font-family: 'avenir-next-lt-pro', sans-serif;
+			font-size: 13px;
+		}
+
+		.buttonbar {
+			width: 100%;
+			display: flex;
+			gap: 1rem;
+			justify-content: center;
+			align-items: center;
+			margin: 1rem;
+		}
+
+		.buttonbar button {
+			width: 10rem;
+			height: 2.7rem;
+			border-radius: 6px;
+		}
+
+		.buttonbar .yes {
+			background: rgb(175, 219, 175);
+			border: 1px solid green;
+		}
+
+		.buttonbar .no {
+			background: rgb(247, 167, 167);
+			border: 1px solid red;
+		}
+
+		.buttonbar button:hover {
+			transform: translateY(2px);
+		}
+
+		.AS_Notif {
+			padding-right: 1rem;
+			font-family: 'Avenir Next LT Pro', sans-serif;
+			font-weight: 400;
+			line-height: normal;
+			-webkit-font-smoothing: antialiased;
+			font-size: 15px;
+			color: #dddddd;
+			text-transform: none;
+		}
+
+		.greyBox {
+			padding: 1rem;
+			border: 1px solid #d2d4d4;
+			background: #f5f8fa;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+		}
+
+		button,
+		input[type=file] {
+			font-family: 'Avenir Next LT Pro', sans-serif;
+			text-align: center;
+			font-size: 13px;
+		}
+
+		.fakebutton {
+			text-align: center;
+			font-family: 'Avenir Next LT Pro', sans-serif;
+			font-size: 13px;
+			display: inline-block;
+			border: 1px solid #4f4f4f;
+			background: #b8b8b8;
+			border-radius: 4px;
+			padding: 8px 12px;
+			color: #4f4f4f
+		}
+
+		.redtxt {
+			color: rgb(182, 17, 17);
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- This is the overlay that displays the formatted JSON when the 'Create JSON' button is pressed -->
+	<div class="overlay" id="overlay">
+		<button id="closeOverlay">Close</button>
+		<textarea id="overlayTextArea">TestTesttest</textarea>
+	</div>
+
+	<!-- This is the overlay that displays when first loading the page and auto-save data is found -->
+	<div class="overlay" id="autoSaveOverlay">
+		<div class="AS_Text">
+			<h1>Auto Save Data found!</h1>
+			<p>
+				Would you like to reload your work to continue where you left off?
+			</p>
+			<div class="buttonbar">
+				<button class="yes" id="loadAS">Yes, reload my save</button>
+				<button class="no" id="closeASOverlay">No, delete my auto save and start again</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- This is the top bar containing the HubSpot logo and the auto-save date & time -->
+	<div class="topbar" style="display:flex; align-items:center; justify-content:space-between;">
+		<svg style="fill:#ff7a59; height:76%;" id="hs-nav-v4--logo" viewBox="0 0 242.04 257" alt="Home"
+			class="nav-logo logo">
+			<g class="cls-2">
+				<path class="cls-3"
+					d="M162.79,101.25V82a14.84,14.84,0,0,0,8.56-13.38v-.45a14.87,14.87,0,0,0-14.83-14.83h-.45a14.87,14.87,0,0,0-14.83,14.83v.45A14.84,14.84,0,0,0,149.8,82v19.29a42.06,42.06,0,0,0-20,8.8L76.86,68.86a16.89,16.89,0,1,0-7.91,10.29L121,119.67a42.18,42.18,0,0,0,.65,47.56l-15.84,15.84a13.6,13.6,0,0,0-3.93-.64,13.75,13.75,0,1,0,13.75,13.75,13.56,13.56,0,0,0-.64-3.93l15.67-15.67a42.25,42.25,0,1,0,32.1-75.33m-6.49,63.42A21.68,21.68,0,1,1,178,143a21.68,21.68,0,0,1-21.68,21.68">
+				</path>
+			</g>
+		</svg>
+		<div class="AS_Notif" id="AS_Notif">Test</div>
+	</div>
+
+
+
+	<!-- This is the main area containing all property rows -->
+	<div class="content" id="mainCanvas">
+		<span class="title">Hubspot Bulk Property creation tool</span>
+
+		<div class="objectSelector" id="objectSelector">
+			<div class="greyBox">
+				<input placeholder="Private Key" id="privateKey" type="text">
+				<input placeholder="Object Type" id="objectType" type="search" list="objectTypes" />
+				<datalist id="objectTypes">
+					<option>Contact</option>
+					<option>Company</option>
+					<option>Deal</option>
+					<option>Ticket</option>
+					<option>Product</option>
+					<option>Quote</option>
+					<option>Forecast</option>
+					<option>Activity</option>
+				</datalist>
+			</div>
+			<!-- CSV upload -->
+			<div class="greyBox">
+				<input type="file" id="myfile" name="myfile" onchange="readFile(this)">
+				<span class="fakebutton" id="submitCSVfake">Import CSV</span>
+				<button id="submitCSV" style="display:none;">Import CSV</button>
+				<button id="viewColumnHeaders" style="display:none;">View Column Headers as CSV</button>
+			</div>
+		</div>
+
+		<!-- This is a property row, the first one to be specific -->
+		<!-- More rows are created using javascript in the <script> section below -->
+		<div class="propertyRow" id="propertyRow1">
+			<div class="leftmenu">
+				<button id="deleteRow1" onclick="deleteRow(1)"><svg xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 448 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+						<path
+							d="M135.2 17.69C140.6 6.848 151.7 0 163.8 0H284.2C296.3 0 307.4 6.848 312.8 17.69L320 32H416C433.7 32 448 46.33 448 64C448 81.67 433.7 96 416 96H32C14.33 96 0 81.67 0 64C0 46.33 14.33 32 32 32H128L135.2 17.69zM31.1 128H416V448C416 483.3 387.3 512 352 512H95.1C60.65 512 31.1 483.3 31.1 448V128zM111.1 208V432C111.1 440.8 119.2 448 127.1 448C136.8 448 143.1 440.8 143.1 432V208C143.1 199.2 136.8 192 127.1 192C119.2 192 111.1 199.2 111.1 208zM207.1 208V432C207.1 440.8 215.2 448 223.1 448C232.8 448 240 440.8 240 432V208C240 199.2 232.8 192 223.1 192C215.2 192 207.1 199.2 207.1 208zM304 208V432C304 440.8 311.2 448 320 448C328.8 448 336 440.8 336 432V208C336 199.2 328.8 192 320 192C311.2 192 304 199.2 304 208z" />
+					</svg></button>
+				<button id="cloneRow1" onclick="cloneRow(1)"><svg xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 512 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
+						<path
+							d="M366.2 256H400C461.9 256 512 306.1 512 368C512 388.9 498.6 406.7 480 413.3V464C480 490.5 458.5 512 432 512H80C53.49 512 32 490.5 32 464V413.3C13.36 406.7 0 388.9 0 368C0 306.1 50.14 256 112 256H145.8C175.7 256 200 231.7 200 201.8C200 184.3 190.8 168.5 180.1 154.8C167.5 138.5 160 118.1 160 96C160 42.98 202.1 0 256 0C309 0 352 42.98 352 96C352 118.1 344.5 138.5 331.9 154.8C321.2 168.5 312 184.3 312 201.8C312 231.7 336.3 256 366.2 256zM416 416H96V448H416V416z" />
+					</svg></button>
+			</div>
+			<div class="creationForm" id="CF1">
+				<table>
+					<tr>
+						<th>Label</th>
+						<th>Name</th>
+						<th>Type</th>
+						<th>Field Type</th>
+						<th>Group</th>
+					</tr>
+					<tr>
+						<td><input type="text" id="label1" onchange="createName(1)" oninput="this.onchange();"
+								onkeyup="this.onchange();" onpaste="this.onchange();"></input></td>
+						<td><input type="text" id="name1"></input></td>
+						<td><input type="text" onfocus="this.value=''" id="type1" list="types"></input>
+							<datalist id="types">
+								<option>string</option>
+								<option>number</option>
+								<option>date</option>
+								<option>datetime</option>
+								<option>enumeration</option>
+								<option>bool</option>
+							</datalist>
+						</td>
+						<td><input type="text" onfocus="this.value=''" name="fieldType" id="fieldType1" list="fieldTypes">
+							<datalist id="fieldTypes">
+								<option>textarea</option>
+								<option>text</option>
+								<option>date</option>
+								<option>file</option>
+								<option>number</option>
+								<option>select</option>
+								<option>checkbox</option>
+								<option>booleancheckbox</option>
+							</datalist>
+						</td>
+						<td><input type="text" id="groupName1"></input></td>
+					</tr>
+					<tr>
+						<th>Description</th>
+						<th>Options</th>
+						<th>Unique Value</th>
+						<th>Hidden</th>
+						<th>Form Field</th>
+					</tr>
+					<tr>
+						<td><input type="text" id="description1"></input></td>
+						<td><input type="text" id="options1"></input></td>
+						<td><input type="text" onfocus="this.value=''" id="hasUniqueValue1" list="booleanCheck"></input></td>
+						<td><input type="text" onfocus="this.value=''" id="hidden1" list="booleanCheck"></input></td>
+						<td><input type="text" onfocus="this.value=''" id="formField1" list="booleanCheck"></input></td>
+						<datalist id="booleanCheck">
+							<option>true</option>
+							<option>false</option>
+						</datalist>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- End property row -->
+
+	</div>
+
+	<!-- These are the buttons at the bottom of the page -->
+	<!-- Just comment out buttons individually to hide them -->
+	<div class="buttons">
+		<button id="postData">Create properties</button>
+		<button id="createCode">Create JSON</button>
+		<button id="addNewProperty">Add New Property</button>
+		<button id="cloneLastProperty">Clone Last Property</button>
+		<button id="debugFill">Debug Fill</button>
+		<button id="debugDestroyLS">Delete local storage</button>
+		<button id="printLS">Debug print local storage</button>
+		<button id="debugDeleteAll" onclick="clearCurrentProperties()">Debug Delete All</button>
+	</div>
+
+</body>
+
+<script>
+	/***********************************
+	****		INITIALISATION 		****
+	***********************************/
+
+	//Initialise autoSaveVar for use within the auto save feature
+	var autoSaveVar = 0;
+
+	//The length of time in milliseconds between auto saves
+	const autoSaveLength = 5000;
+
+	//Initiates the propertyList array ready to store property data
+	var propertyList = [];
+
+	//Initiates the globalCSVdata object read to store data from CSV imports
+	var globalCSVdata = new Object;
+
+	//Initiates the filteredPropertyList variable ready to store property data
+	var filteredPropertyList;
+
+	//tracks the keys of all existing property rows. 0 = 'deleted'.
+	var $keyArray = [0, 1];
+
+	//tracks the current number of items used when creating properties
+	var $currentNumber = 1;
+
+	//Closes the "Create JSON" overlay on first load
+	$('#overlay').toggle();
+
+
+	/***********************************
+	****		AUTO SAVE	 		****
+	***********************************/
+
+	//Check if an auto save exists within local data
+	//If true, leaves the auto save overlay open and updates the 'Last Autosave' element 
+	//If false, closes the auto save overlay and initiates the auto save timer
+	if (localStorage.getItem('data')) {
+		console.log("Data exists");
+		console.log("Autosave from: " + localStorage.getItem('date'));
+		$('#AS_Notif').text(`Last Autosave: ${localStorage.getItem('date')}`);
+	} else {
+		$('#autoSaveOverlay').toggle();
+		autoSave(1);
+	}
+
+	//Turns on autosave.
+	//case 0 is currently not used, but it would turn off the auto save loop
+	//case 1 begins the auto save loop
+	function autoSave(onOff) {
+		switch (onOff) {
+			case 0:
+				clearInterval(autoSaveVar);
+				break;
+			case 1:
+				autoSaveVar = setInterval(function () {
+					localStorage.setItem('data', createJSONstring());
+					localStorage.setItem('date', new Date().toLocaleString());
+					localStorage.setItem('privateKey', getGlobalVar('privateKey'));
+					localStorage.setItem('objectType', getGlobalVar('objectType'));
+					$('#AS_Notif').text(`Last Autosave: ${localStorage.getItem('date')}`);
+				}, autoSaveLength);
+				break;
+		}
+		return;
+	}
+
+	//Used within the autoSave() function because for some reason using jQuery element tags doesn't work inside that function??
+	//i is the name of the global variable 
+	function getGlobalVar(i) {
+		return $(`#${i}`).val();
+	}
+
+
+	/***********************************
+	****		CLICK EVENTS 		****
+	****		DEBUG EVENTS		****
+	***********************************/
+
+	//debug click event for printing local storage to console
+	$('#printLS').click(function () {
+		console.group();
+		for (var a in localStorage) {
+			console.log(a, ' = ', localStorage[a]);
+		}
+		console.groupEnd();
+	});
+
+	//debug click event that deletes local storage auto save manually
+	$('#debugDestroyLS').click(function () {
+		localStorage.clear();
+		console.log("Local Storage Cleared");
+	});
+
+	//debug click event that auto-fills the first property with some test data
+	//keyArr is the array holding the element IDs
+	//debugArr is the array holding the data to be filled into the elements
+	$('#debugFill').click(function () {
+		var keyArr = [
+			'#name1',
+			'#label1',
+			'#type1',
+			'#fieldType1',
+			'#groupName1',
+			'#description1',
+			'#options1',
+			'#hasUniqueValue1',
+			'#hidden1',
+			'#formField1'
+		]
+		var debugArr = [
+			'Test Property',
+			'Test Label',
+			'number',
+			'number',
+			'Testgroup',
+			'Testdesc',
+			'',
+			'Yes',
+			'No',
+			'Yes'
+		]
+		for (p = 0; p < keyArr.length; p++) {
+			$select = document.querySelector(keyArr[p]);
+			$select.value = debugArr[p];
+		}
+	})
+
+
+	/***********************************
+	****		CLICK EVENTS 		****
+	****		NON-DEBUG EVENTS	****
+	***********************************/
+
+	//click event that closes the auto save overlay after first launch, then loads the save
+	$('#loadAS').click(function () {
+		$('#autoSaveOverlay').toggle();
+		loadFromLocalStorage();
+	});
+
+	//click event that closes the auto save overlay after first launch, then deletes local storage and restarts the auto save process
+	$('#closeASOverlay').click(function () {
+		$('#autoSaveOverlay').toggle();
+		localStorage.clear();
+		console.log("Local Storage Cleared");
+		autoSave(1);
+	});
+
+	//click event that runs when the '#createCode' button is pressed
+	//calls 4 functions in order
+	$('#createCode').click(function () {
+		createJSON();
+		filterJSON();
+		sendJSON();
+		displayJSON();
+	});
+
+
+	//click event that closes the JSON overlay after clicking the '#createCode' button
+	$('#closeOverlay').click(function () {
+		$('#overlay').toggle();
+	});
+
+	//click event that creates a new property row
+	$('#addNewProperty').click(function () {
+		newPropertyRow();
+	});
+
+	//click event that shows the overlay and fills it with the correct column headers for CSV import
+	$('#viewColumnHeaders').click(function () {
+		$('#overlay').toggle();
+		$('#overlayTextArea').empty();
+		//	writes the formatted JSON to #overlayTextArea
+		$('#overlayTextArea').append(`label,type,fieldType,groupName,description,options,hasUniqueValue,hidden,formField`);
+	});
+
+	//click event that imports data via CSV
+	$('#submitCSV').click(function () {
+		clearCurrentProperties();
+		loadJSON(globalCSVdata);
+		$('#myfile').val('');
+		$('#submitCSVfake').toggle();
+		$('#submitCSVfake').html(`Import CSV`);
+		$('#submitCSV').hide();
+		$('#viewColumnHeaders').hide();
+	});
+
+	//click event that runs when the '#cloneLastProperty' button is pressed
+	//Finds the last property that hasn't been deleted, then creates a new property and copies the values to the new property
+	//Does not copy '#label' and '#name' fields, as these must be unique
+	$('#cloneLastProperty').click(function (data) {
+		$tempNum = Math.max(...$keyArray);	//determines the highest number within the $keyArray array, this is the ID of the last property that hasn't been deleted
+		//Stores the values of the highest property ID in tempArr
+		var tempArr = [
+			$('#name' + $tempNum).val(),
+			$('#label' + $tempNum).val(),
+			$('#type' + $tempNum).val(),
+			$('#fieldType' + $tempNum).val(),
+			$('#groupName' + $tempNum).val(),
+			$('#description' + $tempNum).val(),
+			$('#options' + $tempNum).val(),
+			$('#hasUniqueValue' + $tempNum).val(),
+			$('#hidden' + $tempNum).val(),
+			$('#formField' + $tempNum).val()
+		];
+		$currentNumber++;	//Increases $currentNumber by 1 to indicate a new property being created
+		//Stores the element IDs within keyArr
+		var keyArr = [
+			'#type' + $currentNumber,
+			'#fieldType' + $currentNumber,
+			'#groupName' + $currentNumber,
+			'#description' + $currentNumber,
+			'#options' + $currentNumber,
+			'#hasUniqueValue' + $currentNumber,
+			'#hidden' + $currentNumber,
+			'#formField' + $currentNumber
+		]
+		//Adds the newly created property to $keyArray 
+		$keyArray[$currentNumber] = $currentNumber;
+		//Writes the HTML to the bottom of the list
+		$('#mainCanvas').append(`
+		<div class="propertyRow" id="propertyRow${$currentNumber}">
+			<div class="leftmenu">
+				<button id="deleteRow${$currentNumber}" onclick="deleteRow(${$currentNumber})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M135.2 17.69C140.6 6.848 151.7 0 163.8 0H284.2C296.3 0 307.4 6.848 312.8 17.69L320 32H416C433.7 32 448 46.33 448 64C448 81.67 433.7 96 416 96H32C14.33 96 0 81.67 0 64C0 46.33 14.33 32 32 32H128L135.2 17.69zM31.1 128H416V448C416 483.3 387.3 512 352 512H95.1C60.65 512 31.1 483.3 31.1 448V128zM111.1 208V432C111.1 440.8 119.2 448 127.1 448C136.8 448 143.1 440.8 143.1 432V208C143.1 199.2 136.8 192 127.1 192C119.2 192 111.1 199.2 111.1 208zM207.1 208V432C207.1 440.8 215.2 448 223.1 448C232.8 448 240 440.8 240 432V208C240 199.2 232.8 192 223.1 192C215.2 192 207.1 199.2 207.1 208zM304 208V432C304 440.8 311.2 448 320 448C328.8 448 336 440.8 336 432V208C336 199.2 328.8 192 320 192C311.2 192 304 199.2 304 208z"/></svg></button>
+				<button id="cloneRow${$currentNumber}" onclick="cloneRow(${$currentNumber})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M366.2 256H400C461.9 256 512 306.1 512 368C512 388.9 498.6 406.7 480 413.3V464C480 490.5 458.5 512 432 512H80C53.49 512 32 490.5 32 464V413.3C13.36 406.7 0 388.9 0 368C0 306.1 50.14 256 112 256H145.8C175.7 256 200 231.7 200 201.8C200 184.3 190.8 168.5 180.1 154.8C167.5 138.5 160 118.1 160 96C160 42.98 202.1 0 256 0C309 0 352 42.98 352 96C352 118.1 344.5 138.5 331.9 154.8C321.2 168.5 312 184.3 312 201.8C312 231.7 336.3 256 366.2 256zM416 416H96V448H416V416z"/></svg></button>
+			</div>
+		<div class="creationForm" id="CF${$currentNumber}">
+			<table>
+				<tr>
+					<th>Label</th>
+					<th>Name</th>
+					<th>Type</th>
+					<th>Field Type</th>
+					<th>Group</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="label${$currentNumber}" onchange="createName(${$currentNumber})" oninput="this.onchange();" onkeyup="this.onchange();" onpaste="this.onchange();"></input></td>
+					<td><input type="text" id="name${$currentNumber}"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="type${$currentNumber}" list="types"></input>
+						<datalist id="types">
+							<option>number</option>
+							<option>date</option>
+							<option>datetime</option>
+							<option>enumeration</option>
+						</datalist>
+					</td>
+					<td><input type="text" onfocus="this.value=''" name="fieldType" id="fieldType${$currentNumber}" list="fieldTypes" >
+						<datalist id="fieldTypes">
+							<option>textarea</option>
+							<option>text</option>
+							<option>date</option>
+							<option>file</option>
+							<option>number</option>
+							<option>select</option>
+							<option>checkbox</option>
+							<option>booleancheckbox</option>
+						</datalist>
+					</td>
+					<td><input type="text" id="groupName${$currentNumber}"></input></td>
+				</tr>
+				<tr>
+					<th>Description</th>
+					<th>Options</th>
+					<th>Unique Value</th>
+					<th>Hidden</th>
+					<th>Form Field</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="description${$currentNumber}"></input></td>
+					<td><input type="text" id="options${$currentNumber}"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="hasUniqueValue${$currentNumber}" list="booleanCheck"></input></td>
+					<td><input type="text"  onfocus="this.value=''" id="hidden${$currentNumber}" list="booleanCheck"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="formField${$currentNumber}" list="booleanCheck"></input></td>
+					<datalist id="booleanCheck">
+						<option>Yes</option>
+						<option>No</option>
+					</datalist>
+				</tr>
+			</table>
+		</div>
+		</div>
+		`);
+		//Loops through the newly created elements and changes their values to the cloned property
+		var $select;
+		for (p = 0; p < keyArr.length; p++) {
+			$select = document.querySelector(keyArr[p]);
+			$select.value = tempArr[p + 2];
+		}
+	});
+
+
+	/***********************************
+	****		FUNCTIONS			****
+	***********************************/
+
+	//function to read the contents of a CSV file
+	function readFile(input) {
+		let file = input.files[0];
+		let reader = new FileReader();
+		var errors = [];
+		const keyCheck = ["label", "type", "fieldType", "groupName", "description", "options", "hasUniqueValue", "hidden", "formField"];
+
+		reader.readAsText(file);
+
+		reader.onload = function () {
+			var csvData = $.csv.toObjects(reader.result);
+			globalCSVdata = csvData;
+			console.group();
+			console.log("data", csvData);
+			console.log("length", csvData.length);
+			if (csvData.length > 0) { console.log("keys", Object.keys(csvData[0])); }
+			console.groupEnd();
+			//Hides both the real and fake buttons
+			$('#submitCSVfake').hide();
+			$('#submitCSV').hide();
+			$('#viewColumnHeaders').hide();
+
+			if (csvData.length > 0) {
+				//Scans through the first object entity and checks if the column headers match the requirements
+				for (i = 0; i < Object.keys(csvData[0]).length; i++) {
+					if (!keyCheck.includes(Object.keys(csvData[0])[i])) {
+						errors.push(Object.keys(csvData[0])[i]);
+					}
+				}
+				//If any column header is not found in the keyCheck array, raise an error and display the erroneous header in the error message
+				if (errors.length > 0) {
+					console.log(errors);
+					$('#submitCSVfake').toggle();
+					$('#submitCSVfake').html(`Import CSV<br><span class="redtxt">Error: Column headers are incorrect</span>`);
+					$('#viewColumnHeaders').toggle();
+					for (i = 0; i < errors.length; i++) {
+						$('#submitCSVfake').append(`<br><span class="redtxt">Issue #${i + 1}: '${errors[i]}'</span>`);
+					}
+					return;
+				}
+				//Shows the real button if csv length (rows in file) is gt 0
+				$('#submitCSV').toggle();
+			} else {
+				//Shows the fake button if the csv length (rows in file) is equal to or lt 0
+				//Also throws an error message explaining this
+				$('#submitCSVfake').toggle();
+				$('#submitCSVfake').html(`Import CSV <br> <span class="redtxt">Error: File contains 0 rows</span>`);
+			}
+		};
+
+		reader.onerror = function () {
+			console.log(reader.error);
+		};
+	}
+
+	//function to delete all current properties, effectively starting from scratch
+	function clearCurrentProperties() {
+		for (i = 2; i < $keyArray.length; i++) {
+			$('#propertyRow' + i).remove();
+		}
+		$keyArray = [];
+		$currentNumber = 1;
+		document.querySelector('#name1').value = '';
+		document.querySelector('#label1').value = '';
+		document.querySelector('#type1').value = '';
+		document.querySelector('#fieldType1').value = '';
+		document.querySelector('#groupName1').value = '';
+		document.querySelector('#description1').value = '';
+		document.querySelector('#options1').value = '';
+		document.querySelector('#hasUniqueValue1').value = '';
+		document.querySelector('#hidden1').value = '';
+		document.querySelector('#formField1').value = '';
+	}
+
+	//function to change the value of '#name' elements based on the content of the corresponding '#label' element
+	//called as an 'onchange' function from the '#label' elements
+	function createName(i) {
+		$('#name' + i).val(cleanName($('#label' + i).val()));
+	}
+
+	//function called by createName() 
+	//Sets the name to lowercase, and replace non-alphanumerics to underscores
+	function cleanName(i) {
+		var cleanedName = i.replace(/[\W_]+/g, "_");	//Replaces non-alphanumeric and spaces to underscores
+		cleanedName = cleanedName.toLowerCase();	//transforms text to lowercase
+		return cleanedName;
+	}
+
+	//function called by the click event for '#loadAS'
+	//stores the JSON parsed local storage in tempData then sends it to 'loadJSON()' to action
+	//also changes '#privateKey' and '#objectType' to the values stored locally
+	//finally, re-enables auto save loop
+	function loadFromLocalStorage() {
+		//	Grabs data from local storage and parses it back into a JS Object
+		var tempData = JSON.parse(localStorage.getItem('data'));
+		document.querySelector('#privateKey').value = localStorage.getItem('privateKey');
+		document.querySelector('#objectType').value = localStorage.getItem('objectType');
+		loadJSON(tempData);
+		autoSave(1);
+	}
+
+	//function called by loadFromLocalStorage() 
+	//Calls newPropertyRow() to create a new property 
+	//Then loops through the fields, changing the values to those stored in the 'data' JSON object
+	function loadJSON(data) {
+		for (i = 1; i < data.length; i++) {
+			newPropertyRow();
+		}
+		for (i = 0; i < data.length; i++) {
+			document.querySelector('#name' + (i + 1)).value = cleanName(data[i].label);
+			document.querySelector('#label' + (i + 1)).value = data[i].label;
+			document.querySelector('#type' + (i + 1)).value = data[i].type;
+			document.querySelector('#fieldType' + (i + 1)).value = data[i].fieldType;
+			document.querySelector('#groupName' + (i + 1)).value = data[i].groupName;
+			document.querySelector('#description' + (i + 1)).value = data[i].description;
+			document.querySelector('#options' + (i + 1)).value = data[i].options;
+			document.querySelector('#hasUniqueValue' + (i + 1)).value = data[i].hasUniqueValue;
+			document.querySelector('#hidden' + (i + 1)).value = data[i].hidden;
+			document.querySelector('#formField' + (i + 1)).value = data[i].formField;
+		}
+	}
+
+	//function called by loadJSON() and the '#addNewProperty' click event 
+	//Increases '$currentNumber' by one, which tracks the current maximum ID of properties
+	//stores the ID into the '$keyArray' array, which tracks which $currentNumber IDs are live and which have been deleted
+	//adds HTML to the '#mainCanvas' element at the bottom to track a new property
+	function newPropertyRow() {
+		$currentNumber++;
+		$keyArray[$currentNumber] = $currentNumber;
+		$('#mainCanvas').append(`
+		<div class="propertyRow" id="propertyRow${$currentNumber}">
+			<div class="leftmenu">
+				<button id="deleteRow${$currentNumber}" onclick="deleteRow(${$currentNumber})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M135.2 17.69C140.6 6.848 151.7 0 163.8 0H284.2C296.3 0 307.4 6.848 312.8 17.69L320 32H416C433.7 32 448 46.33 448 64C448 81.67 433.7 96 416 96H32C14.33 96 0 81.67 0 64C0 46.33 14.33 32 32 32H128L135.2 17.69zM31.1 128H416V448C416 483.3 387.3 512 352 512H95.1C60.65 512 31.1 483.3 31.1 448V128zM111.1 208V432C111.1 440.8 119.2 448 127.1 448C136.8 448 143.1 440.8 143.1 432V208C143.1 199.2 136.8 192 127.1 192C119.2 192 111.1 199.2 111.1 208zM207.1 208V432C207.1 440.8 215.2 448 223.1 448C232.8 448 240 440.8 240 432V208C240 199.2 232.8 192 223.1 192C215.2 192 207.1 199.2 207.1 208zM304 208V432C304 440.8 311.2 448 320 448C328.8 448 336 440.8 336 432V208C336 199.2 328.8 192 320 192C311.2 192 304 199.2 304 208z"/></svg></button>
+				<button id="cloneRow${$currentNumber}" onclick="cloneRow(${$currentNumber})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M366.2 256H400C461.9 256 512 306.1 512 368C512 388.9 498.6 406.7 480 413.3V464C480 490.5 458.5 512 432 512H80C53.49 512 32 490.5 32 464V413.3C13.36 406.7 0 388.9 0 368C0 306.1 50.14 256 112 256H145.8C175.7 256 200 231.7 200 201.8C200 184.3 190.8 168.5 180.1 154.8C167.5 138.5 160 118.1 160 96C160 42.98 202.1 0 256 0C309 0 352 42.98 352 96C352 118.1 344.5 138.5 331.9 154.8C321.2 168.5 312 184.3 312 201.8C312 231.7 336.3 256 366.2 256zM416 416H96V448H416V416z"/></svg></button>
+			</div>
+		<div class="creationForm" id="CF${$currentNumber}">
+			<table>
+				<tr>
+					<th>Label</th>
+					<th>Name</th>
+					<th>Type</th>
+					<th>Field Type</th>
+					<th>Group</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="label${$currentNumber}" onchange="createName(${$currentNumber})" oninput="this.onchange();" onkeyup="this.onchange();" onpaste="this.onchange();"></input></td>
+					<td><input type="text" id="name${$currentNumber}"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="type${$currentNumber}" list="types"></input>
+						<datalist id="types">
+							<option>number</option>
+							<option>date</option>
+							<option>datetime</option>
+							<option>enumeration</option>
+						</datalist>
+					</td>
+					<td><input type="text" onfocus="this.value=''" name="fieldType" id="fieldType${$currentNumber}" list="fieldTypes" >
+						<datalist id="fieldTypes">
+							<option>textarea</option>
+							<option>text</option>
+							<option>date</option>
+							<option>file</option>
+							<option>number</option>
+							<option>select</option>
+							<option>checkbox</option>
+							<option>booleancheckbox</option>
+						</datalist>
+					</td>
+					<td><input type="text" id="groupName${$currentNumber}"></input></td>
+				</tr>
+				<tr>
+					<th>Description</th>
+					<th>Options</th>
+					<th>Unique Value</th>
+					<th>Hidden</th>
+					<th>Form Field</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="description${$currentNumber}"></input></td>
+					<td><input type="text" id="options${$currentNumber}"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="hasUniqueValue${$currentNumber}" list="booleanCheck"></input></td>
+					<td><input type="text"  onfocus="this.value=''" id="hidden${$currentNumber}" list="booleanCheck"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="formField${$currentNumber}" list="booleanCheck"></input></td>
+					<datalist id="booleanCheck">
+						<option>Yes</option>
+						<option>No</option>
+					</datalist>
+				</tr>
+			</table>
+		</div>
+		</div>
+		`);
+	}
+
+	//function called by '#createCode' click event
+	//Wipes the 'propertyList' array ready to be used
+	//loops through from 0 to '$currentNumber' which encompasses all possible properties
+	//stores the values in 'tempArr' array
+	//If the 'tempArr' array is null, or the '#name' value stored in tempArr[0] is undefined, it skips that iteration
+	//Otherwise, it adds the values to the 'propertyList' object using the 'push' method
+	function createJSON() {
+		propertyList = [];
+		for (i = 0; i < $currentNumber; i++) {
+			var tempArr = [
+				$('#name' + (i + 1)).val(),
+				$('#label' + (i + 1)).val(),
+				$('#type' + (i + 1)).val(),
+				$('#fieldType' + (i + 1)).val(),
+				$('#groupName' + (i + 1)).val(),
+				$('#description' + (i + 1)).val(),
+				$('#options' + (i + 1)).val(),
+				$('#hasUniqueValue' + (i + 1)).val(),
+				$('#hidden' + (i + 1)).val(),
+				$('#formField' + (i + 1)).val()
+			];
+			// null and undefined check 
+			if (tempArr != null && tempArr[0] != undefined) {
+				propertyList.push({ "name": tempArr[0], "label": tempArr[1], "type": tempArr[2], "fieldType": tempArr[3], "groupName": tempArr[4], "description": tempArr[5], "options": tempArr[6], "hasUniqueValue": tempArr[7], "hidden": tempArr[8], "formField": tempArr[9] });
+			}
+		}
+	}
+
+	//function called by '#createCode' click event
+	//takes the 'propertyList' array and strips it of any null entries, indicating deleted properties
+	//stores the cleaned object as 'filteredPropertyList'
+	function filterJSON() {
+		//	removes any "null" objects from  propertyList
+		filteredPropertyList = propertyList.filter(function (el) {
+			return el != null;
+		})
+	}
+
+	//function called by '#createCode' click event
+	//Just sends 'filteredPropertyList' to sendPOSTreq() ready to be sent as a POST request
+	function sendJSON() {
+		// Send json to sendPOSTreq
+		sendPOSTreq(filteredPropertyList);
+	}
+
+	//function called by '#createCode' click event
+	//Opens the '#overlay' window and writes the JSON to a textarea within
+	function displayJSON() {
+		$('#overlay').toggle();
+		$('#overlayTextArea').empty();
+		//	writes the formatted JSON to #overlayTextArea
+		$('#overlayTextArea').append(JSON.stringify(filteredPropertyList, null, "\t"));
+	}
+
+	//function called by the autoSave() function
+	//for all intents and purposes it's identical to createJSON(), but has a return clause 
+	function createJSONstring() {
+		propertyList = [];
+		for (i = 0; i < $currentNumber; i++) {
+			var tempArr = [
+				$('#name' + (i + 1)).val(),
+				$('#label' + (i + 1)).val(),
+				$('#type' + (i + 1)).val(),
+				$('#fieldType' + (i + 1)).val(),
+				$('#groupName' + (i + 1)).val(),
+				$('#description' + (i + 1)).val(),
+				$('#options' + (i + 1)).val(),
+				$('#hasUniqueValue' + (i + 1)).val(),
+				$('#hidden' + (i + 1)).val(),
+				$('#formField' + (i + 1)).val()
+			];
+			// null and undefined check 
+			if (tempArr != null && tempArr[0] != undefined) {
+				propertyList.push({ "name": tempArr[0], "label": tempArr[1], "type": tempArr[2], "fieldType": tempArr[3], "groupName": tempArr[4], "description": tempArr[5], "options": tempArr[6], "hasUniqueValue": tempArr[7], "hidden": tempArr[8], "formField": tempArr[9] });
+			}
+		}
+		return JSON.stringify(propertyList);
+	}
+
+	//function called by an onclick in each 'deleteRow' button
+	//Removes the property ID from $keyArray[] then removes the HTML from existence
+	function deleteRow(i) {
+		$keyArray[i] = 0;
+		$('#propertyRow' + i).remove();
+	}
+
+	//function called by an onclick in each 'cloneRow' button
+	//for all intents and purposes it's identical to the '#cloneLastProperty' click event, but a function instead
+	function cloneRow(i) {
+		$tempNum = i;
+		var tempArr = [
+			$('#name' + $tempNum).val(),
+			$('#label' + $tempNum).val(),
+			$('#type' + $tempNum).val(),
+			$('#fieldType' + $tempNum).val(),
+			$('#groupName' + $tempNum).val(),
+			$('#description' + $tempNum).val(),
+			$('#options' + $tempNum).val(),
+			$('#hasUniqueValue' + $tempNum).val(),
+			$('#hidden' + $tempNum).val(),
+			$('#formField' + $tempNum).val()
+		];
+
+		$currentNumber++;
+		var keyArr = [
+			'#type' + $currentNumber,
+			'#fieldType' + $currentNumber,
+			'#groupName' + $currentNumber,
+			'#description' + $currentNumber,
+			'#options' + $currentNumber,
+			'#hasUniqueValue' + $currentNumber,
+			'#hidden' + $currentNumber,
+			'#formField' + $currentNumber
+		]
+		$keyArray[$currentNumber] = $currentNumber;
+		$('#mainCanvas').append(`
+		<div class="propertyRow" id="propertyRow${$currentNumber}">
+			<div class="leftmenu">
+				<button id="deleteRow${$currentNumber}" onclick="deleteRow(${$currentNumber})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M135.2 17.69C140.6 6.848 151.7 0 163.8 0H284.2C296.3 0 307.4 6.848 312.8 17.69L320 32H416C433.7 32 448 46.33 448 64C448 81.67 433.7 96 416 96H32C14.33 96 0 81.67 0 64C0 46.33 14.33 32 32 32H128L135.2 17.69zM31.1 128H416V448C416 483.3 387.3 512 352 512H95.1C60.65 512 31.1 483.3 31.1 448V128zM111.1 208V432C111.1 440.8 119.2 448 127.1 448C136.8 448 143.1 440.8 143.1 432V208C143.1 199.2 136.8 192 127.1 192C119.2 192 111.1 199.2 111.1 208zM207.1 208V432C207.1 440.8 215.2 448 223.1 448C232.8 448 240 440.8 240 432V208C240 199.2 232.8 192 223.1 192C215.2 192 207.1 199.2 207.1 208zM304 208V432C304 440.8 311.2 448 320 448C328.8 448 336 440.8 336 432V208C336 199.2 328.8 192 320 192C311.2 192 304 199.2 304 208z"/></svg></button>
+				<button id="cloneRow${$currentNumber}" onclick="cloneRow(${$currentNumber})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M366.2 256H400C461.9 256 512 306.1 512 368C512 388.9 498.6 406.7 480 413.3V464C480 490.5 458.5 512 432 512H80C53.49 512 32 490.5 32 464V413.3C13.36 406.7 0 388.9 0 368C0 306.1 50.14 256 112 256H145.8C175.7 256 200 231.7 200 201.8C200 184.3 190.8 168.5 180.1 154.8C167.5 138.5 160 118.1 160 96C160 42.98 202.1 0 256 0C309 0 352 42.98 352 96C352 118.1 344.5 138.5 331.9 154.8C321.2 168.5 312 184.3 312 201.8C312 231.7 336.3 256 366.2 256zM416 416H96V448H416V416z"/></svg></button>
+			</div>
+		<div class="creationForm" id="CF${$currentNumber}">
+			<table>
+				<tr>
+					<th>Label</th>
+					<th>Name</th>
+					<th>Type</th>
+					<th>Field Type</th>
+					<th>Group</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="label${$currentNumber}" onchange="createName(${$currentNumber})" oninput="this.onchange();" onkeyup="this.onchange();" onpaste="this.onchange();"></input></td>
+					<td><input type="text" id="name${$currentNumber}"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="type${$currentNumber}" list="types"></input>
+						<datalist id="types">
+							<option>number</option>
+							<option>date</option>
+							<option>datetime</option>
+							<option>enumeration</option>
+						</datalist>
+					</td>
+					<td><input type="text" onfocus="this.value=''" name="fieldType" id="fieldType${$currentNumber}" list="fieldTypes" >
+						<datalist id="fieldTypes">
+							<option>textarea</option>
+							<option>text</option>
+							<option>date</option>
+							<option>file</option>
+							<option>number</option>
+							<option>select</option>
+							<option>checkbox</option>
+							<option>booleancheckbox</option>
+						</datalist>
+					</td>
+					<td><input type="text" id="groupName${$currentNumber}"></input></td>
+				</tr>
+				<tr>
+					<th>Description</th>
+					<th>Options</th>
+					<th>Unique Value</th>
+					<th>Hidden</th>
+					<th>Form Field</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="description${$currentNumber}"></input></td>
+					<td><input type="text" id="options${$currentNumber}"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="hasUniqueValue${$currentNumber}" list="booleanCheck"></input></td>
+					<td><input type="text"  onfocus="this.value=''" id="hidden${$currentNumber}" list="booleanCheck"></input></td>
+					<td><input type="text" onfocus="this.value=''" id="formField${$currentNumber}" list="booleanCheck"></input></td>
+					<datalist id="booleanCheck">
+						<option>Yes</option>
+						<option>No</option>
+					</datalist>
+				</tr>
+			</table>
+		</div>
+		</div>
+		`);
+		var $select;
+		for (p = 0; p < keyArr.length; p++) {
+			$select = document.querySelector(keyArr[p]);
+			$select.value = tempArr[p + 2];
+		}
+	}
+
+	//function that will eventually house the POST request / webhook / back-end wizardry
+	function sendPOSTreq(data) {
+		var $objectType = $('#objectType').val();
+		var $privateKey = $('#privateKey').val();
+		let payload = {
+			data: data,
+			objectType: $objectType,
+			token: $privateKey
+		}
+		const requestOptions = {
+			method: "POST",
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		}
+		fetch('https://api.integratr.io/api/f197be4a-4a80-44ab-be56-2478c0743c65', requestOptions)
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data)
+			})
+
+	}
+</script>
+
+</html>
